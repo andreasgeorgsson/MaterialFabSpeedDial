@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Handler
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.*
@@ -454,13 +453,17 @@ class FabSpeedDial : FrameLayout, CoordinatorLayout.AttachedBehavior {
             touchGuard.visibility = View.VISIBLE
             if (useRevealEffect) {
                 touchGuard.alpha = 0.0f
-                Handler().post {
+                mainFab.post {
                     touchGuard.alpha = 1.0f
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         val cx = fabsContainer.left + (mainFab.left + mainFab.right) / 2
                         val cy = fabsContainer.top + (mainFab.top + mainFab.bottom) / 2
                         val radius = Math.max(touchGuard.width, touchGuard.height) * 2.0f
-                        ViewAnimationUtils.createCircularReveal(touchGuard, cx, cy, 0f, radius).start()
+                        if (ViewCompat.isAttachedToWindow(touchGuard)) {
+                            ViewAnimationUtils.createCircularReveal(touchGuard, cx, cy, 0f, radius).start()
+                        } else {
+                            mainFab.isSelected = false
+                        }
                     }
                 }
             }
